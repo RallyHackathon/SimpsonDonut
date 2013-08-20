@@ -7045,11 +7045,108 @@ Ext.define('CustomApp', {
   listeners:
   {
     afterrender: function() {
-      this.thecode();
+      this.getData();
     }
   },
 
-  thecode: function() {
+  getData: function() {
+
+    Ext.create('Rally.data.lookback.SnapshotStore', {
+        autoLoad: true,
+        listeners: {
+            load: function(store, data, success) {
+                //process data
+                //console.log('data', _.pluck(_.pluck(data, 'data'), '_ItemHierarchy'), success);
+                this.transformData(data);
+            },
+            scope: this
+        },
+        fetch: ['Name', 'ObjectID', '_TypeHierarchy', '_ItemHierarchy'],
+        filters: [
+            {
+                property: '__At',
+                value: 'current'
+            },
+            {
+                property: '_ItemHierarchy',
+                operator: '=',
+                value: 5154216954       // (Initiative)  I504 - Improved Story Splitting   // FIXME h/c initiative
+                //value: 4930994830     //     (Theme)  TH190 - SaaS Scalability
+            },
+            {
+                property: '_TypeHierarchy',
+                operator: 'in',
+                value: ['PortfolioItem', 'HierarchicalRequirement']
+            },
+        ]
+    });
+
+  },
+  transformData: function(snapshots) {
+    // Sort by Artifact Type:  Theme > Initiative > Story
+    var sortedData = Ext.Array.sort(snapshots, function(v1, v2) {
+      var l1 = v1.get('_ItemHierarchy').length;
+      var l2 = v2.get('_ItemHierarchy').length;
+      if (l1 > l2) { return 1; }
+      if (l1 == l2) { return 0; }
+      if (l1 < l2) { return -1; }
+    });
+
+    console.log('records', sortedData);
+
+    var tree = Ext.create('Ext.data.Tree', {});
+
+    var nodeInterface = Ext.create('Ext.data.NodeInterface', {});
+    
+    root = nodeInterface.createNode({
+      id: 'root',
+      name: ''
+    });
+
+    tree.root = root;
+    Ext.Array.each(sortedData, function(data) {
+      var parentId;
+      if (data.get('_ItemHierarchy').length === 2) {   // top level artifact   // FIXME assuming 2nd level Initiative 
+        parentId = 'root';
+      } else {
+        parentId = String(data.get('_ItemHierarchy')[data.get('_ItemHierarchy').length - 2]);
+      }
+      console.log('parent id', parentId);
+      var parentNode = tree.root.getNodeById(parentId);
+
+      console.log('parent node', parentNode, typeof parentNode);
+      var node = {
+        name: data.Name,
+        id: data.ObjectID
+        };
+
+      parentNode.appendChild(node);
+      console.log('parent node', parentNode);
+    });
+
+    console.log('tree store', treeStore);
+/*
+    Ext.Array.each(sortedData, function(data) {
+
+    });
+       var json = 
+    [
+    {
+      "name": "Aromas",
+      "children": [
+      {
+        "name": "Enzymatic",
+        "children": [
+        {
+          "name": "Flowery",
+          "children": [
+          {
+            "name": "Floral",
+            "children": [
+*/ 
+    this.renderChart();
+  },
+  renderChart: function() {
     var width = 600,
     height = width,
     radius = width / 2,
