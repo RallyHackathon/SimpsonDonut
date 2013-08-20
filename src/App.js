@@ -1,14 +1,40 @@
 Ext.define('CustomApp', {
   extend: 'Rally.app.App',
   componentCls: 'app',
+  id: 'CustomD3App',
   listeners:
   {
     afterrender: function() {
-      this.thecode();
+      this.getData();
     }
   },
 
-  theCode: function() {
+  getData: function() {
+
+    Ext.create('Rally.data.lookback.SnapshotStore', {
+        listeners: {
+            load: function(store, data, success) {
+                //process data
+console.log('data', data, success);
+            }
+        },
+        fetch: ['FormattedID', 'Name'],
+        filters: [
+            {
+                property: '_ItemHierarchy',
+                value: 5154216954
+            },
+            {
+                property: '_TypeHierarchy',
+                operator: 'in',
+                value: ['PortfolioItem/Initiative', 'PortfolioItem/Feature', 'HierarchicalRequirement']
+            },
+        ]
+    });
+
+    this.renderChart();
+  },
+  renderChart: function() {
     var width = 600,
     height = width,
     radius = width / 2,
@@ -23,7 +49,7 @@ Ext.define('CustomApp', {
 
     minimap = div.append("svg")
       .attr("width", 50)
-      .attr("height", 50)
+      .attr("height", 50);
 
     minimap.append("circle")
       .style("stroke", "gray")
@@ -433,7 +459,7 @@ Ext.define('CustomApp', {
       }
       ]
     }
-    ]
+    ];
 
 
     var nodes = partition.nodes({children: json});
@@ -461,7 +487,7 @@ Ext.define('CustomApp', {
       .attr("transform", function(d) {
         var multiline = (d.name || "").split(" ").length > 1,
         angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
-        rotate = angle + (multiline ? -.5 : 0);
+        rotate = angle + (multiline ? -0.5 : 0);
         return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
       })
       .on("click", click);
@@ -494,7 +520,7 @@ Ext.define('CustomApp', {
           var multiline = (d.name || "").split(" ").length > 1;
           return function() {
             var angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
-            rotate = angle + (multiline ? -.5 : 0);
+            rotate = angle + (multiline ? -0.5 : 0);
             return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
           };
         })
@@ -542,7 +568,7 @@ Ext.define('CustomApp', {
     }
 
     function brightness(rgb) {
-      return rgb.r * .299 + rgb.g * .587 + rgb.b * .114;
+      return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
     }
   }
 });
