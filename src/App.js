@@ -52,39 +52,62 @@ Ext.define('CustomApp', {
       if (l1 < l2) { return -1; }
     });
 
-    console.log('records', sortedData);
+    tree = {0:{name: null, children: {}}};
 
-    var tree = Ext.create('Ext.data.Tree', {});
+    _.each(_.pluck(sortedData, 'data'), function (data) {
 
-    var nodeInterface = Ext.create('Ext.data.NodeInterface', {});
-    
-    root = nodeInterface.createNode({
-      id: 'root',
-      name: ''
-    });
 
-    tree.root = root;
-    Ext.Array.each(sortedData, function(data) {
-      var parentId;
-      if (data.get('_ItemHierarchy').length === 2) {   // top level artifact   // FIXME assuming 2nd level Initiative 
-        parentId = 'root';
-      } else {
-        parentId = String(data.get('_ItemHierarchy')[data.get('_ItemHierarchy').length - 2]);
+      hierarchy = data._ItemHierarchy;
+      name = data.Name;
+      hl = hierarchy.length;
+      current = hierarchy[hl - 1];
+      if (hl === 2) {
+        tree[0].children[current] = {name: name, children: {}};
       }
-      console.log('parent id', parentId);
-      var parentNode = tree.root.getNodeById(parentId);
-
-      console.log('parent node', parentNode, typeof parentNode);
-      var node = {
-        name: data.Name,
-        id: data.ObjectID
-        };
-
-      parentNode.appendChild(node);
-      console.log('parent node', parentNode);
+      else {
+        parent = tree[0];
+        for (var i = 1; i < hl - 1; i++) {
+          item = hierarchy[i];
+          parent = parent.children[item];
+        }
+        parent.children[current] = {name: name, children: {}};
+      }
     });
+    console.log("the completed tree: ", tree);
 
-    console.log('tree store', treeStore);
+
+
+    // var tree = Ext.create('Ext.data.Tree', {});
+
+    // var nodeInterface = Ext.create('Ext.data.NodeInterface', {});
+    
+    // root = nodeInterface.createNode({
+    //   id: 'root',
+    //   name: ''
+    // });
+
+    // tree.root = root;
+    // Ext.Array.each(sortedData, function(data) {
+    //   var parentId;
+    //   if (data.get('_ItemHierarchy').length === 2) {   // top level artifact   // FIXME assuming 2nd level Initiative 
+    //     parentId = 'root';
+    //   } else {
+    //     parentId = String(data.get('_ItemHierarchy')[data.get('_ItemHierarchy').length - 2]);
+    //   }
+    //   console.log('parent id', parentId);
+    //   var parentNode = tree.root.getNodeById(parentId);
+
+    //   console.log('parent node', parentNode, typeof parentNode);
+    //   var node = {
+    //     name: data.Name,
+    //     id: data.ObjectID
+    //     };
+
+    //   parentNode.appendChild(node);
+    //   console.log('parent node', parentNode);
+    // });
+
+    // console.log('tree store', treeStore);
 /*
     Ext.Array.each(sortedData, function(data) {
 
