@@ -2,10 +2,11 @@ Ext.define('CustomApp', {
   extend: 'Rally.app.App',
   componentCls: 'app',
   listeners:
-  afterrender: function() {
-    this.thecode();
-  }
-  ,
+  {
+    afterrender: function() {
+      this.thecode();
+    }
+  },
 
   theCode: function() {
     var width = 600,
