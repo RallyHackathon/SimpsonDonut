@@ -7070,7 +7070,8 @@ Ext.define('CustomApp', {
             {
                 property: '_ItemHierarchy',
                 operator: '=',
-                value: 5154216954       // (Initiative)  I504 - Improved Story Splitting   // FIXME h/c initiative
+                value: 11241019501
+                //value: 5154216954       // (Initiative)  I504 - Improved Story Splitting   // FIXME h/c initiative
                 //value: 4930994830     //     (Theme)  TH190 - SaaS Scalability
             },
             {
@@ -7092,65 +7093,71 @@ Ext.define('CustomApp', {
       if (l1 < l2) { return -1; }
     });
 
-    tree = {0:{"name": null, "children": {}}};
-    treeSize = sortedData.length;
+
+    var leaf_depth = _.last(sortedData).data._ItemHierarchy.length;
+    console.log(leaf_depth);
+
+    var tree = {0:{"name": null, "children": []}};
 
     _.each(_.pluck(sortedData, 'data'), function (data) {
 
 
-      hierarchy = data._ItemHierarchy;
-      name = data.Name;
-      hl = hierarchy.length;
-      current = hierarchy[hl - 1];
+      var hierarchy = data._ItemHierarchy;
+      var name = data.Name;
+      var hl = hierarchy.length;
+      var current = hierarchy[hl - 1];
       if (hl === 2) {
-        tree[0]["children"][current] = {"name": name, "data": String(current), "children": {}};
+        tree[0]["children"].push({"name": name, "data": String(current), "children": []});
       }
       else {
-        parent = tree[0];
+        var parent = tree[0];
         for (var i = 1; i < hl - 1; i++) {
-          item = hierarchy[i];
-          parent = parent["children"][item];
+            for (var j in parent["children"]) {
+                var child = parent["children"][j];
+                if (child["data"] == String(hierarchy[i])) {
+                    parent = child;
+                    break;
+                }
+            }
         }
-        parent["children"][current] = {"name": name, "data": String(current), "children": {}};
+        if (hl == leaf_depth) {
+            parent["children"].push({"name": name, "data": String(current), "colour": "#388E8E"});
+        }
+        else {
+            parent["children"].push({"name": name, "data": String(current), "children": []})
+        }
       }
     });
-    
-    this.treeToJSON(tree, treeSize);
+    console.log(tree);
+    this.renderChart(tree[0]["children"]);
+    //this.treeToJSON(tree);
   },
 
-  objectToArray: function(obj) {
-    if (Object.keys(obj["children"]).length == 0) {
-      delete obj['children'];
-      obj["colour"] = "#388E8E";
-      return obj;
-    }
+  // objectToArray: function(obj) {
+  //   if (Object.keys(obj["children"]).length == 0) {
+  //     delete obj['children'];
+  //     obj["colour"] = "#388E8E";
+  //     return obj;
+  //   }
 
-    var ret = [];
+  //   var ret = [];
 
-    for (key in obj["children"]) {
+  //   for (key in obj["children"]) {
 
-      ret.push(this.objectToArray(obj["children"][key]));
+  //     ret.push(this.objectToArray(obj["children"][key]));
 
-    }
-    obj["children"] = ret;
-    return obj;
-  },
+  //   }
+  //   obj["children"] = ret;
+  //   return obj;
+  // },
 
-  treeToJSON: function(tree, treeSize) {
-    // var json = [];
-    // var nVisited = 0;
-    // var current = tree[0];
+  // treeToJSON: function(tree) {
 
-    // while (nVisited < treeSize) {
-    //   nVisited += Object.keys(current.children).length
+  //   json = this.objectToArray(tree[0])["children"];
+  //   console.log(JSON.stringify(json));
+  //   this.renderChart(json);
 
-
-    // }
-    json = this.objectToArray(tree[0])["children"];
-    console.log(JSON.stringify(json));
-    this.renderChart(json);
-
-  },
+  // },
 
 
 
@@ -7667,7 +7674,7 @@ Ext.define('CustomApp', {
     textEnter.append("tspan")
       .attr("x", 0)
       .text(function(d) { return d.depth ? d.data.split(" ")[0] : ""; }); //used to be d.name
-      textEnter.append("tspan")
+    textEnter.append("tspan")
       .attr("x", 0)
       .attr("dy", "1em")
       .text(function(d) { return d.depth ? d.data.split(" ")[1] || "" : ""; }); //used to be d.name
