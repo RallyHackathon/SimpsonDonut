@@ -7060,6 +7060,9 @@ Ext.define('CustomApp', {
         select: function(combo, records) {
           this.getData(records[0].data.ObjectID);
         },
+        ready: function(combo) {
+          this.getData(combo.getRecord().get('ObjectID'));
+        },
         scope: this
       },
       fieldLabel: "Initiative: ",
@@ -7077,13 +7080,12 @@ Ext.define('CustomApp', {
         autoLoad: true,
         listeners: {
             load: function(store, data, success) {
-                //process data
-                //console.log('data', _.pluck(_.pluck(data, 'data'), '_ItemHierarchy'), success);
                 this.transformDataToTree(data);
             },
             scope: this
         },
-        fetch: ['Name', 'ObjectID', '_TypeHierarchy', '_ItemHierarchy'],
+        fetch: ['Name', 'ObjectID', '_TypeHierarchy', '_ItemHierarchy', 'PortfolioItemType', '_UnformattedID'],
+        hydrate: ['_TypeHierarchy'],
         filters: [
             {
                 property: '__At',
@@ -7106,6 +7108,7 @@ Ext.define('CustomApp', {
 
   },
   transformDataToTree: function(snapshots) {
+    console.log(snapshots);
     // Sort by Artifact Type:  Theme > Initiative > Story
     var sortedData = Ext.Array.sort(snapshots, function(v1, v2) {
       var l1 = v1.get('_ItemHierarchy').length;
@@ -7115,9 +7118,9 @@ Ext.define('CustomApp', {
       if (l1 < l2) { return -1; }
     });
 
+    console.log(sortedData);
 
     var leaf_depth = _.last(sortedData).data._ItemHierarchy.length;
-    console.log(leaf_depth);
 
     var tree = {0:{"name": null, "children": []}};
 
@@ -7128,12 +7131,19 @@ Ext.define('CustomApp', {
       var name = data.Name;
       var hl = hierarchy.length;
       var current = hierarchy[hl - 1];
-      if (hl === 2) {
-        tree[0]["children"].push({"name": name, "data": String(current), "children": []});
+
+      var FormattedID = (function(type) {
+        if (type === "PortfolioItem/Initiative") {return "I";}
+        else if (type === "PortfolioItem/Feature") {return "F";}
+        else {return "S";}
+      })(data._TypeHierarchy[data._TypeHierarchy.length - 1]) + String(data._UnformattedID);
+
+      if (hl === 1) {
+        tree[0]["children"].push({"name": name, "data": String(current), "colour": "#FF0000", "display": FormattedID});
       }
       else {
         var parent = tree[0];
-        for (var i = 1; i < hl - 1; i++) {
+        for (var i = 0; i < hl - 1; i++) {
             for (var j in parent["children"]) {
                 var child = parent["children"][j];
                 if (child["data"] == String(hierarchy[i])) {
@@ -7142,15 +7152,15 @@ Ext.define('CustomApp', {
                 }
             }
         }
+        if (!("children" in parent)) {parent["children"] = [];}
         if (hl == leaf_depth) {
-            parent["children"].push({"name": name, "data": String(current), "colour": "#388E8E"});
+            parent["children"].push({"name": name, "data": String(current), "colour": "#388E8E", "display": FormattedID});
         }
         else {
-            parent["children"].push({"name": name, "data": String(current), "children": []})
+            parent["children"].push({"name": name, "data": String(current), "colour": "#FF0000", "display": FormattedID})
         }
       }
     });
-    console.log(tree);
     this.renderChart(tree[0]["children"]);
     //this.treeToJSON(tree);
   },
@@ -7169,6 +7179,10 @@ Ext.define('CustomApp', {
 
     var div = d3.select("#CustomD3App");
 
+
+    div.selectAll("svg").remove();
+
+
     minimap = div.append("svg")
       .attr("width", 50)
       .attr("height", 50);
@@ -7182,8 +7196,6 @@ Ext.define('CustomApp', {
       .on("mouseover", function(){d3.select(this).style("fill", "black");})
       .on("mouseout", function(){d3.select(this).style("fill", "white");});
 
-
-    div.select("img").remove();
 
     var vis = div.append("svg")
       .attr("width", width + padding * 2)
@@ -7226,7 +7238,7 @@ Ext.define('CustomApp', {
       })
       .attr("dy", ".2em")
       .attr("transform", function(d) {
-        var multiline = (d.data || "").split(" ").length > 1, //used to be d.name
+        var multiline = (d.display || "").split(" ").length > 1, //used to be d.name
         angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
         rotate = angle + (multiline ? -0.5 : 0);
         return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
@@ -7235,11 +7247,11 @@ Ext.define('CustomApp', {
 
     textEnter.append("tspan")
       .attr("x", 0)
-      .text(function(d) { return d.depth ? d.data.split(" ")[0] : ""; }); //used to be d.name
+      .text(function(d) { return d.depth ? d.display.split(" ")[0] : ""; }); //used to be d.name
     textEnter.append("tspan")
       .attr("x", 0)
       .attr("dy", "1em")
-      .text(function(d) { return d.depth ? d.data.split(" ")[1] || "" : ""; }); //used to be d.name
+      .text(function(d) { return d.depth ? d.display.split(" ")[1] || "" : ""; }); //used to be d.name
 
     function click(d) {
       path.transition()
@@ -7258,7 +7270,7 @@ Ext.define('CustomApp', {
           };
         })
         .attrTween("transform", function(d) {
-          var multiline = (d.data || "").split(" ").length > 1; //used to be d.name
+          var multiline = (d.display || "").split(" ").length > 1; //used to be d.name
           return function() {
             var angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
             rotate = angle + (multiline ? -0.5 : 0);
@@ -7282,14 +7294,6 @@ Ext.define('CustomApp', {
     }
 
     function colour(d) {
-      if (d.children) {
-        // There is a maximum of two children!
-        var colours = d.children.map(colour),
-        a = d3.hsl(colours[0]),
-        b = d3.hsl(colours[1]);
-        // L*a*b* might be better here...
-        return d3.hsl((a.h + b.h) / 2, a.s * 1.2, a.l / 1.2);
-      }
       return d.colour || "#FF0000";
     }
 
