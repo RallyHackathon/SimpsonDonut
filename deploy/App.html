@@ -7045,8 +7045,39 @@ Ext.define('CustomApp', {
   listeners:
   {
     afterrender: function() {
-      this.getData();
+      this.artifactSelection();
+      //this.getData();
     }
+  },
+
+  
+  artifactSelection: function () {
+    comboBox = Ext.create('Rally.ui.combobox.ComboBox', {
+      storeConfig: {
+        autoLoad: true,
+        model: 'PortfolioItem',
+        fetch: ['FormattedID', 'Name', 'PortfolioItemType,Ordinal'],
+        sorters: [{
+            sorterFn: function(v1, v2) {
+              console.log(v1, v2);
+              o1 = v1.data.PortfolioItemType.Ordinal;
+              o2 = v2.data.PortfolioItemType.Ordinal;
+              console.log(o1, o2);
+              if (o1 > o2) {return -1;}
+              if (o1 == o2) {return 0;}
+              if (o1 < o2) {return 1;}
+            }
+
+        }]
+      },
+      displayField: 'FormattedID',
+      listeners: {
+        select: function(combo, records) {
+          console.log(records);
+        }
+      }
+    });
+    this.add(comboBox);
   },
 
   getData: function() {
@@ -7070,7 +7101,7 @@ Ext.define('CustomApp', {
             {
                 property: '_ItemHierarchy',
                 operator: '=',
-                value: 11241019501
+                value: 11241019501 // Susan's Roadmap
                 //value: 5154216954       // (Initiative)  I504 - Improved Story Splitting   // FIXME h/c initiative
                 //value: 4930994830     //     (Theme)  TH190 - SaaS Scalability
             },
@@ -7133,85 +7164,7 @@ Ext.define('CustomApp', {
     //this.treeToJSON(tree);
   },
 
-  // objectToArray: function(obj) {
-  //   if (Object.keys(obj["children"]).length == 0) {
-  //     delete obj['children'];
-  //     obj["colour"] = "#388E8E";
-  //     return obj;
-  //   }
-
-  //   var ret = [];
-
-  //   for (key in obj["children"]) {
-
-  //     ret.push(this.objectToArray(obj["children"][key]));
-
-  //   }
-  //   obj["children"] = ret;
-  //   return obj;
-  // },
-
-  // treeToJSON: function(tree) {
-
-  //   json = this.objectToArray(tree[0])["children"];
-  //   console.log(JSON.stringify(json));
-  //   this.renderChart(json);
-
-  // },
-
-
-
-
-    // var tree = Ext.create('Ext.data.Tree', {});
-
-    // var nodeInterface = Ext.create('Ext.data.NodeInterface', {});
-    
-    // root = nodeInterface.createNode({
-    //   id: 'root',
-    //   name: ''
-    // });
-
-    // tree.root = root;
-    // Ext.Array.each(sortedData, function(data) {
-    //   var parentId;
-    //   if (data.get('_ItemHierarchy').length === 2) {   // top level artifact   // FIXME assuming 2nd level Initiative 
-    //     parentId = 'root';
-    //   } else {
-    //     parentId = String(data.get('_ItemHierarchy')[data.get('_ItemHierarchy').length - 2]);
-    //   }
-    //   console.log('parent id', parentId);
-    //   var parentNode = tree.root.getNodeById(parentId);
-
-    //   console.log('parent node', parentNode, typeof parentNode);
-    //   var node = {
-    //     name: data.Name,
-    //     id: data.ObjectID
-    //     };
-
-    //   parentNode.appendChild(node);
-    //   console.log('parent node', parentNode);
-    // });
-
-    // console.log('tree store', treeStore);
-/*
-    Ext.Array.each(sortedData, function(data) {
-
-    });
-       var json = 
-    [
-    {
-      "name": "Aromas",
-      "children": [
-      {
-        "name": "Enzymatic",
-        "children": [
-        {
-          "name": "Flowery",
-          "children": [
-          {
-            "name": "Floral",
-            "children": [
-*/ 
+  
   renderChart: function(json) {
     var width = 600,
     height = width,
@@ -7235,7 +7188,7 @@ Ext.define('CustomApp', {
       .attr("r", 10)
       .attr("cx", 30)
       .attr("cy", 30)
-      .on("mouseover", function(){d3.select(this).style("fill", "aliceblue");})
+      .on("mouseover", function(){d3.select(this).style("fill", "black");})
       .on("mouseout", function(){d3.select(this).style("fill", "white");});
 
 
@@ -7257,388 +7210,6 @@ Ext.define('CustomApp', {
       .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
       .innerRadius(function(d) { return Math.max(0, d.y ? y(d.y) : d.y); })
       .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
-
-
-    // var json = 
-    // [
-    // {
-    //   "name": "Aromas",
-    //   "children": [
-    //   {
-    //     "name": "Enzymatic",
-    //     "children": [
-    //     {
-    //       "name": "Flowery",
-    //       "children": [
-    //       {
-    //         "name": "Floral",
-    //         "children": [
-    //         {
-    //           "name": "Coffee Blossom", "colour": "#f9f0ab"
-    //         },
-    //         {
-    //           "name": "Tea Rose", "colour": "#e8e596"
-    //         }
-    //         ]
-    //       },
-    //       {
-    //         "name": "Fragrant",
-    //         "children": [
-    //         {
-    //           "name": "Cardamon Caraway", "colour": "#f0e2a3"
-    //         },
-    //         {
-    //           "name": "Coriander Seeds", "colour": "#ede487"
-    //         }
-    //         ]
-    //       }
-    //       ]
-    //     },
-    //     {
-    //       "name": "Fruity",
-    //       "children": [
-    //       {
-    //         "name": "Citrus",
-    //         "children": [
-    //         {
-    //           "name": "Lemon", "colour": "#efd580"
-    //         },
-    //         {
-    //           "name": "Apple", "colour": "#f1cb82"
-    //         }
-    //         ]
-    //       },
-    //       {
-    //         "name": "Berry-like",
-    //         "children": [
-    //         {
-    //           "name": "Apricot", "colour": "#f1c298"
-    //         },
-    //         {
-    //           "name": "Blackberry", "colour": "#e8b598"
-    //         }
-    //         ]
-    //       }
-    //       ]
-    //     },
-    //     {
-    //       "name": "Herby",
-    //       "children": [
-    //       {
-    //         "name": "Alliaceous",
-    //         "children": [
-    //         {
-    //           "name": "Onion", "colour": "#d5dda1"
-    //         },
-    //         {
-    //           "name": "Garlic", "colour": "#c9d2b5"
-    //         }
-    //         ]
-    //       },
-    //       {
-    //         "name": "Leguminous",
-    //         "children": [
-    //         {
-    //           "name": "Cucumber", "colour": "#aec1ad"
-    //         },
-    //         {
-    //           "name": "Garden Peas", "colour": "#a7b8a8"
-    //         }
-    //         ]
-    //       }
-    //       ]
-    //     }
-    //     ]
-    //   },
-    //   {
-    //     "name": "Sugar Browning",
-    //     "children": [
-    //     {
-    //       "name": "Nutty",
-    //       "children": [
-    //       {
-    //         "name": "Nut-like",
-    //         "children": [
-    //         {
-    //           "name": "Roasted Peanuts", "colour": "#b49a3d"
-    //         },
-    //         {
-    //           "name": "Walnuts", "colour": "#b28647"
-    //         }
-    //         ]
-    //       },
-    //       {
-    //         "name": "Malt-like",
-    //         "children": [
-    //         {
-    //           "name": "Balsamic Rice", "colour": "#a97d32"
-    //         },
-    //         {
-    //           "name": "Toast", "colour": "#b68334"
-    //         }
-    //         ]
-    //       }
-    //       ]
-    //     },
-    //     {
-    //       "name": "Carmelly",
-    //       "children": [
-    //       {
-    //         "name": "Candy-like",
-    //         "children": [
-    //         {
-    //           "name": "Roasted Hazelnut", "colour": "#d6a680"
-    //         },
-    //         {
-    //           "name": "Roasted Almond", "colour": "#dfad70"
-    //         }
-    //         ]
-    //       },
-    //       {
-    //         "name": "Syrup-like",
-    //         "children": [
-    //         {
-    //           "name": "Honey", "colour": "#a2765d"
-    //         },
-    //         {
-    //           "name": "Maple Syrup", "colour": "#9f6652"
-    //         }
-    //         ]
-    //       }
-    //       ]
-    //     },
-    //     {
-    //       "name": "Chocolatey",
-    //       "children": [
-    //       {
-    //         "name": "Chocolate-like",
-    //         "children": [
-    //         {
-    //           "name": "Bakers", "colour": "#b9763f"
-    //         },
-    //         {
-    //           "name": "Dark Chocolate", "colour": "#bf6e5d"
-    //         }
-    //         ]
-    //       },
-    //       {
-    //         "name": "Vanilla-like",
-    //         "children": [
-    //         {
-    //           "name": "Swiss", "colour": "#af643c"
-    //         },
-    //         {
-    //           "name": "Butter", "colour": "#9b4c3f"
-    //         }
-    //         ]
-    //       }
-    //       ]
-    //     }
-    //     ]
-    //   },
-    //   {
-    //     "name": "Dry Distillation",
-    //     "children": [
-    //     {
-    //       "name": "Resinous",
-    //       "children": [
-    //       {
-    //         "name": "Turpeny",
-    //         "children": [
-    //         {
-    //           "name": "Piney", "colour": "#72659d"
-    //         },
-    //         {
-    //           "name": "Blackcurrant-like", "colour": "#8a6e9e"
-    //         }
-    //         ]
-    //       },
-    //       {
-    //         "name": "Medicinal",
-    //         "children": [
-    //         {
-    //           "name": "Camphoric", "colour": "#8f5c85"
-    //         },
-    //         {
-    //           "name": "Cineolic", "colour": "#934b8b"
-    //         }
-    //         ]
-    //       }
-    //       ]
-    //     },
-    //     {
-    //       "name": "Spicy",
-    //       "children": [
-    //       {
-    //         "name": "Warming",
-    //         "children": [
-    //         {
-    //           "name": "Cedar", "colour": "#9d4e87"
-    //         },
-    //         {
-    //           "name": "Pepper", "colour": "#92538c"
-    //         }
-    //         ]
-    //       },
-    //       {
-    //         "name": "Pungent",
-    //         "children": [
-    //         {
-    //           "name": "Clove", "colour": "#8b6397"
-    //         },
-    //         {
-    //           "name": "Thyme", "colour": "#716084"
-    //         }
-    //         ]
-    //       }
-    //       ]
-    //     },
-    //     {
-    //       "name": "Carbony",
-    //       "children": [
-    //       {
-    //         "name": "Smokey",
-    //         "children": [
-    //         {
-    //           "name": "Tarry", "colour": "#2e6093"
-    //         },
-    //         {
-    //           "name": "Pipe Tobacco", "colour": "#3a5988"
-    //         }
-    //         ]
-    //       },
-    //       {
-    //         "name": "Ashy",
-    //         "children": [
-    //         {
-    //           "name": "Burnt", "colour": "#4a5072"
-    //         },
-    //         {
-    //           "name": "Charred", "colour": "#393e64"
-    //         }
-    //         ]
-    //       }
-    //       ]
-    //     }
-    //     ]
-    //   }
-    //   ]
-    // },
-    // {
-    //   "name": "Tastes",
-    //   "children": [
-    //   {
-    //     "name": "Bitter",
-    //     "children": [
-    //     {
-    //       "name": "Pungent",
-    //       "children": [
-    //       {
-    //         "name": "Creosol", "colour": "#aaa1cc"
-    //       },
-    //       {
-    //         "name": "Phenolic", "colour": "#e0b5c9"
-    //       }
-    //       ]
-    //     },
-    //     {
-    //       "name": "Harsh",
-    //       "children": [
-    //       {
-    //         "name": "Caustic", "colour": "#e098b0"
-    //       },
-    //       {
-    //         "name": "Alkaline", "colour": "#ee82a2"
-    //       }
-    //       ]
-    //     }
-    //     ]
-    //   },
-    //   {
-    //     "name": "Salt",
-    //     "children": [
-    //     {
-    //       "name": "Sharp",
-    //       "children": [
-    //       {
-    //         "name": "Astringent", "colour": "#ef91ac"
-    //       },
-    //       {
-    //         "name": "Rough", "colour": "#eda994"
-    //       }
-    //       ]
-    //     },
-    //     {
-    //       "name": "Bland",
-    //       "children": [
-    //       {
-    //         "name": "Neutral", "colour": "#eeb798"
-    //       },
-    //       {
-    //         "name": "Soft", "colour": "#ecc099"
-    //       }
-    //       ]
-    //     }
-    //     ]
-    //   },
-    //   {
-    //     "name": "Sweet",
-    //     "children": [
-    //     {
-    //       "name": "Mellow",
-    //       "children": [
-    //       {
-    //         "name": "Delicate", "colour": "#f6d5aa"
-    //       },
-    //       {
-    //         "name": "Mild", "colour": "#f0d48a"
-    //       }
-    //       ]
-    //     },
-    //     {
-    //       "name": "Acidy",
-    //       "children": [
-    //       {
-    //         "name": "Nippy", "colour": "#efd95f"
-    //       },
-    //       {
-    //         "name": "Piquant", "colour": "#eee469"
-    //       }
-    //       ]
-    //     }
-    //     ]
-    //   },
-    //   {
-    //     "name": "Sour",
-    //     "children": [
-    //     {
-    //       "name": "Winey",
-    //       "children": [
-    //       {
-    //         "name": "Tangy", "colour": "#dbdc7f"
-    //       },
-    //       {
-    //         "name": "Tart", "colour": "#dfd961"
-    //       }
-    //       ]
-    //     },
-    //     {
-    //       "name": "Soury",
-    //       "children": [
-    //       {
-    //         "name": "Hard", "colour": "#ebe378"
-    //       },
-    //       {
-    //         "name": "Acrid", "colour": "#f5e351"
-    //       }
-    //       ]
-    //     }
-    //     ]
-    //   }
-    //   ]
-    // }
-    // ];
-
 
     var nodes = partition.nodes({children: json});
 
@@ -7728,7 +7299,7 @@ Ext.define('CustomApp', {
         // L*a*b* might be better here...
         return d3.hsl((a.h + b.h) / 2, a.s * 1.2, a.l / 1.2);
       }
-      return d.colour || "#fff";
+      return d.colour || "#FF0000";
     }
 
 // Interpolate the scales!
