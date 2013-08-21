@@ -68,7 +68,6 @@ Ext.define('CustomApp', {
 
   },
   transformDataToTree: function(snapshots) {
-    console.log(snapshots);
     // Sort by Artifact Type:  Theme > Initiative > Story
     var sortedData = Ext.Array.sort(snapshots, function(v1, v2) {
       var l1 = v1.get('_ItemHierarchy').length;
@@ -78,7 +77,6 @@ Ext.define('CustomApp', {
       if (l1 < l2) { return -1; }
     });
 
-    console.log(sortedData);
 
     var leaf_depth = _.last(sortedData).data._ItemHierarchy.length;
 
@@ -265,7 +263,6 @@ Ext.define('CustomApp', {
 
   },
   showDetails: function(d) {
-    console.log(d);
 
     d3.select("#wheel")
       .transition()
@@ -273,10 +270,9 @@ Ext.define('CustomApp', {
       .attr("transform", "scale(0.5,0.5)translate(600,600)")
 
 
-    d3.select("#vis")
+    var displayCircle = d3.select("#vis")
       .append("circle")
       .attr("id", "detailDialog")
-      .attr("text", d.name)
       .on("dblclick", function() {
         d3.select("#detailDialog")
           .transition()
@@ -305,6 +301,18 @@ Ext.define('CustomApp', {
         .attr("r", "220")
         .attr("cx", 300)
         .attr("cy", 300);
+
+      console.log([d]);
+
+      var text = d3.select("#vis").selectAll("text").data([d]).enter()
+      .append("text")
+        .attr("id", "texttest")
+        .attr("x", function(d) { return 300; })
+        .attr("y", function(d) { return 300; })
+        .attr("font-size", "20px")
+        .attr("fill", "black")
+        .attr("text-anchor", "middle")
+        .text( function(d) {console.log("the data: ", d); return "the name will go here";})
 
 
   }
