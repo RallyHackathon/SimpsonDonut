@@ -7187,20 +7187,12 @@ Ext.define('CustomApp', {
       .attr("width", 50)
       .attr("height", 50);
 
-    minimap.append("circle")
-      .style("stroke", "gray")
-      .style("fill", "white")
-      .attr("r", 10)
-      .attr("cx", 30)
-      .attr("cy", 30)
-      .on("mouseover", function(){d3.select(this).style("fill", "black");})
-      .on("mouseout", function(){d3.select(this).style("fill", "white");});
-
-
     var vis = div.append("svg")
       .attr("width", width + padding * 2)
       .attr("height", height + padding * 2)
+      .attr("id", "vis")
       .append("g")
+      .attr("id", "wheel")
       .attr("transform", "translate(" + [radius + padding, radius + padding] + ")");
 
 
@@ -7315,6 +7307,61 @@ Ext.define('CustomApp', {
     function brightness(rgb) {
       return rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
     }
+
+    minimap.append("circle")
+      .style("stroke", "gray")
+      .style("fill", "white")
+      .attr("r", 10)
+      .attr("cx", 30)
+      .attr("cy", 30)
+      .on("mouseover", function(){d3.select(this).style("fill", "black");})
+      .on("mouseout", function(){d3.select(this).style("fill", "white");})
+      .on("click", this.testFoo);
+  },
+  testFoo: function() {
+
+    d3.select("#wheel")
+      .transition()
+      .duration(1000)
+      .attr("transform", "scale(0.5,0.5)translate(600,600)")
+
+
+    d3.select("#vis")
+      .append("circle")
+      .attr("id", "detailDialog")
+      .on("dblclick", function() {
+        d3.select("#detailDialog")
+          .transition()
+          .duration(1000)
+          .attr("r", 0)
+          .remove();
+
+        d3.select("#wheel")
+          .transition()
+          .duration(1000)
+          .attr("transform", "scale(1,1)translate(300,300)")
+
+
+      })
+      .attr("fill", "#000")
+      .attr("r", "0")
+      .attr("cx", 300)
+      .attr("cy", 300)
+      .transition()
+      .duration(1000)
+      .ease("elastic")
+      .attr("fill", "#b5d8eb")
+      .attr("r", "220")
+      .attr("cx", 300)
+      .attr("cy", 300);
+
+/*
+    d3.select("#path-0")
+      .transition()
+      .duration(2000)
+      .style("fill", "#0f0")
+      .attr("transform", "scale(10,10)");
+*/
   }
 });
 
