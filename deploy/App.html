@@ -7046,7 +7046,6 @@ Ext.define('CustomApp', {
   {
     afterrender: function() {
       this.artifactSelection();
-      //this.getData();
     }
   },
 
@@ -7055,32 +7054,24 @@ Ext.define('CustomApp', {
     comboBox = Ext.create('Rally.ui.combobox.ComboBox', {
       storeConfig: {
         autoLoad: true,
-        model: 'PortfolioItem',
-        fetch: ['FormattedID', 'Name', 'PortfolioItemType,Ordinal'],
-        sorters: [{
-            sorterFn: function(v1, v2) {
-              console.log(v1, v2);
-              o1 = v1.data.PortfolioItemType.Ordinal;
-              o2 = v2.data.PortfolioItemType.Ordinal;
-              console.log(o1, o2);
-              if (o1 > o2) {return -1;}
-              if (o1 == o2) {return 0;}
-              if (o1 < o2) {return 1;}
-            }
-
-        }]
+        model: 'PortfolioItem/Initiative'
       },
-      displayField: 'FormattedID',
       listeners: {
         select: function(combo, records) {
-          console.log(records);
-        }
-      }
+          this.getData(records[0].data.ObjectID);
+        },
+        scope: this
+      },
+      fieldLabel: "Initiative: ",
+      labelAlign: "right",
+      listConfig: {loadMask: true, shadow: true, loadingText: 'Loading...'},
+      typeAhead: true,
+
     });
     this.add(comboBox);
   },
 
-  getData: function() {
+  getData: function(OID) {
 
     Ext.create('Rally.data.lookback.SnapshotStore', {
         autoLoad: true,
@@ -7101,7 +7092,7 @@ Ext.define('CustomApp', {
             {
                 property: '_ItemHierarchy',
                 operator: '=',
-                value: 11241019501 // Susan's Roadmap
+                value: OID 
                 //value: 5154216954       // (Initiative)  I504 - Improved Story Splitting   // FIXME h/c initiative
                 //value: 4930994830     //     (Theme)  TH190 - SaaS Scalability
             },
