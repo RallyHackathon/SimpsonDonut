@@ -7168,13 +7168,14 @@ Ext.define('CustomApp', {
           "data": {
             OID: String(current),
             name: name,
+            unformattedID: data._UnformattedID,
             plannedStartDate: data.PlannedStartDate,
             plannedEndDate: data.PlannedEndDate,
             state: data.State,
             investmentCategory: data.InvestmentCategory,
-            percentDoneByStoryCount: data.percentDoneByStoryCount,
-            percentDoneByPlanEstimate: data.percentDoneByPlanEstimate,
-            preliminaryEstimate: data.preliminaryEstimate
+            percentDoneByStoryCount: data.PercentDoneByStoryCount,
+            percentDoneByPlanEstimate: data.PercentDoneByPlanEstimate,
+            preliminaryEstimate: data.PreliminaryEstimate
           },
           "colour": colours[hl - 2],
           "display": FormattedID
@@ -7306,7 +7307,7 @@ Ext.define('CustomApp', {
     }
 
     function colour(d) {
-      return d.colour || "#000000";
+      return d.colour || "#E57E3A";
     }
 
 // Interpolate the scales!
@@ -7367,7 +7368,7 @@ Ext.define('CustomApp', {
       .transition()
         .duration(2000)
         .ease("elastic")
-        .attr("fill", "#b5d8eb")
+        .attr("fill", "#FBDE98")
         .style("opacity", 1)
         .attr("r", "220")
         .attr("cx", 300)
@@ -7383,10 +7384,18 @@ console.log("foo", d.data);
       .append("div")
         .attr("id", "texttest")
         .style("position", "absolute")
-        .style("left", "300px")
+        .style("left", "150px")
         .style("top", "300px")
         .style("text-align", "center")
-        .html(d.data.name + "<br/>" + d.data.state);
+        .style("font-size", "1.2em")
+        .html(
+             "<b>" + "<a href='http://rallydev.com' target='_blank'>" + d.display + "</b>" + "</a>" + " " + d.data.name + "<br/>"
+             + "<b>State: </b>" + d.data.state + "<br/>"
+             + "<b>% By Story Count: </b>" + d.data.percentDoneByStoryCount + "<br/>"
+             + "<b>% By Plan Estimate: </b>" + d.data.percentDoneByPlanEstimate + "<br/>"
+             + "<b>Planned Start Date: </b>" + d.data.plannedStartDate + "<br/>"
+             + "<b>Planned End Date: </b>" + d.data.plannedEndDate + "<br/>"
+             )
 
   }
 });
