@@ -100,6 +100,7 @@ Ext.define('CustomApp', {
       var name = data.Name;
       var hl = hierarchy.length;
       var current = hierarchy[hl - 1];
+      var parent;
 
       var FormattedID = (function(type) {
         if (type === "PortfolioItem/Initiative") {return "I";}
@@ -107,25 +108,10 @@ Ext.define('CustomApp', {
         else {return "S";}
       })(data._TypeHierarchy[data._TypeHierarchy.length - 1]) + String(data._UnformattedID);
 
-      if (hl === 1) {
-        tree[0]["children"].push({
-          "data": {
-            OID: String(current),
-            name: name,
-            plannedStartDate: data.PlannedStartDate,
-            plannedEndDate: data.PlannedEndDate,
-            state: data.State,
-            investmentCategory: data.InvestmentCategory,
-            percentDoneByStoryCount: data.PercentDoneByStoryCount,
-            percentDoneByPlanEstimate: data.PercentDoneByPlanEstimate,
-            preliminaryEstimate: data.PreliminaryEstimate
-          },
-          "colour": colours[hl - 2],
-          "display": FormattedID
-        });
-      }
-      else {
-        var parent = tree[0];
+      if (hl === 1) { parent = tree[0]; }
+      else 
+      {
+        parent = tree[0];
         for (var i = 0; i < hl - 1; i++) {
             for (var j in parent["children"]) {
                 var child = parent["children"][j];
@@ -135,6 +121,7 @@ Ext.define('CustomApp', {
                 }
             }
         }
+      }
         if (!("children" in parent)) {parent["children"] = [];}
 
         parent["children"].push({
@@ -151,16 +138,14 @@ Ext.define('CustomApp', {
           },
           "colour": colours[hl - 2],
           "display": FormattedID
-          })
-      }
-    });
+          });
+      });
     this.renderChart(tree[0]["children"]);
-    //this.treeToJSON(tree);
   },
 
   
   renderChart: function(json) {
-    var height = this.getHeight() + 100,      // FIXME 100 is accounting for combo box pushing chart down
+    var height = 600,//this.getHeight() + 100,      // FIXME 100 is accounting for combo box pushing chart down
     width = height,
     radius = width / 2,
     x = d3.scale.linear().range([0, 2 * Math.PI]),
@@ -361,7 +346,7 @@ console.log("foo", d.data);
         .style("left", "300px")
         .style("top", "300px")
         .style("text-align", "center")
-        .text(d.data.name + "<br/>" + d.data.state);
+        .html(d.data.name + "<br/>" + d.data.state);
 
   }
 });
