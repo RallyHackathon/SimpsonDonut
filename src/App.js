@@ -131,15 +131,15 @@ Ext.define('CustomApp', {
 
   
   renderChart: function(json) {
-    var width = 600,
-    height = width,
+    var height = this.getHeight() + 100,      // FIXME 100 is accounting for combo box pushing chart down
+    width = height,
     radius = width / 2,
     x = d3.scale.linear().range([0, 2 * Math.PI]),
     y = d3.scale.pow().exponent(1.3).domain([0, 1]).range([0, radius]),
     padding = 5,
     duration = 1000;
 
-
+    console.log('dim', width, height);
 
     var div = d3.select("#CustomD3App");
 
@@ -180,6 +180,12 @@ Ext.define('CustomApp', {
     var text = vis.selectAll("text").data(nodes);
 
     var textEnter = text.enter().append("text")
+      //.style("font-size", String((height/300.0) + "em"))
+      .style("font-size", function(e) {
+        // TODO: dynamically shrink text when under (say) 300px to shrink font
+        // var h = (height < 300) ? String( (0.9 + (height - 100) / 2000 ) + "em") : "1.0em";
+        return "1.0em";
+      })
       .style("fill-opacity", 1)
       .style("fill", function(d) {
         return brightness(d3.rgb(colour(d))) < 125 ? "#eee" : "#000";
