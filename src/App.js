@@ -78,6 +78,16 @@ Ext.define('CustomApp', {
     });
 
 
+    var colours = [
+      '#3A874A',
+      '#6ab17d',
+      '#e3f9e9',
+      '#3f8484',
+      '#b5d8eb',
+      '#eff8fb'
+    ];
+
+
     var leaf_depth = _.last(sortedData).data._ItemHierarchy.length;
 
     var tree = {0:{"name": null, "children": []}};
@@ -97,26 +107,22 @@ Ext.define('CustomApp', {
       })(data._TypeHierarchy[data._TypeHierarchy.length - 1]) + String(data._UnformattedID);
 
       if (hl === 1) {
-        tree[0]["children"].push({"name": name, "data": String(current), "colour": "#FF0000", "display": FormattedID});
+        tree[0]["children"].push({"name": name, "data": {OID: String(current), depth: hl}, "colour": colours[hl - 2], "display": FormattedID});
       }
       else {
         var parent = tree[0];
         for (var i = 0; i < hl - 1; i++) {
             for (var j in parent["children"]) {
                 var child = parent["children"][j];
-                if (child["data"] == String(hierarchy[i])) {
+                if (child["data"].OID == String(hierarchy[i])) {
                     parent = child;
                     break;
                 }
             }
         }
         if (!("children" in parent)) {parent["children"] = [];}
-        if (hl == leaf_depth) {
-            parent["children"].push({"name": name, "data": String(current), "colour": "#388E8E", "display": FormattedID});
-        }
-        else {
-            parent["children"].push({"name": name, "data": String(current), "colour": "#FF0000", "display": FormattedID})
-        }
+
+        parent["children"].push({"name": name, "data": {OID: String(current), depth: hl}, "colour": colours[hl - 2], "display": FormattedID})
       }
     });
     this.renderChart(tree[0]["children"]);
@@ -198,6 +204,11 @@ Ext.define('CustomApp', {
       .attr("dy", "1em")
       .text(function(d) { return d.depth ? d.display.split(" ")[1] || "" : ""; }); //used to be d.name
 
+    text.style("visibility", function(e) {
+      return ((e.depth < 3) ? null : "hidden");
+    });
+
+
     function click(d) {
       path.transition()
         .duration(duration)
@@ -205,7 +216,7 @@ Ext.define('CustomApp', {
 
     // Somewhat of a hack as we rely on arcTween updating the scales.
       text.style("visibility", function(e) {
-          return isParentOf(d, e) ? null : d3.select(this).style("visibility");
+          return (isParentOf(d, e) && ((e.depth === d.depth + 1) || (e.depth === d.depth))) ? null : d3.select(this).style("visibility");
         })
         .transition()
         .duration(duration)
@@ -224,7 +235,7 @@ Ext.define('CustomApp', {
         })
         .style("fill-opacity", function(e) { return isParentOf(d, e) ? 1 : 1e-6; })
         .each("end", function(e) {
-          d3.select(this).style("visibility", isParentOf(d, e) ? null : "hidden");
+          d3.select(this).style("visibility", (isParentOf(d, e) && ((e.depth === d.depth + 1) || (e.depth === d.depth))) ? null : "hidden");
         });
     }
 
