@@ -107,7 +107,7 @@ Ext.define('CustomApp', {
       })(data._TypeHierarchy[data._TypeHierarchy.length - 1]) + String(data._UnformattedID);
 
       if (hl === 1) {
-        tree[0]["children"].push({"data": {"name": name, OID: String(current)}, "colour": colours[hl - 2], "display": FormattedID});
+        tree[0]["children"].push({"data": {name: name, OID: String(current)}, "colour": colours[hl - 2], "display": FormattedID});
       }
       else {
         var parent = tree[0];
@@ -122,7 +122,7 @@ Ext.define('CustomApp', {
         }
         if (!("children" in parent)) {parent["children"] = [];}
 
-        parent["children"].push({"data": {"name": name, OID: String(current)}, "colour": colours[hl - 2], "display": FormattedID})
+        parent["children"].push({"data": {name: name, OID: String(current)}, "colour": colours[hl - 2], "display": FormattedID})
       }
     });
     this.renderChart(tree[0]["children"]);
@@ -296,7 +296,11 @@ Ext.define('CustomApp', {
             .duration(2000)
             .attr("r", 0)
             .style("opacity", .5)
+            .each("start", function() {
+              d3.select("#CustomD3App").selectAll("div").remove();
+            })
             .remove();
+            
 
         d3.select("#wheel")
           .transition()
@@ -331,7 +335,8 @@ Ext.define('CustomApp', {
         .style("position", "absolute")
         .style("left", "300px")
         .style("top", "300px")
-        .text(d.name);
+        .style("text-align", "center")
+        .text(d.data.name);
 
   }
 });
