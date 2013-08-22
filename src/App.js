@@ -108,7 +108,21 @@ Ext.define('CustomApp', {
       })(data._TypeHierarchy[data._TypeHierarchy.length - 1]) + String(data._UnformattedID);
 
       if (hl === 1) {
-        tree[0]["children"].push({"data": {name: name, OID: String(current)}, "colour": colours[hl - 2], "display": FormattedID});
+        tree[0]["children"].push({
+          "data": {
+            OID: String(current),
+            name: name,
+            plannedStartDate: data.PlannedStartDate,
+            plannedEndDate: data.PlannedEndDate,
+            state: data.State,
+            investmentCategory: data.InvestmentCategory,
+            percentDoneByStoryCount: data.PercentDoneByStoryCount,
+            percentDoneByPlanEstimate: data.PercentDoneByPlanEstimate,
+            preliminaryEstimate: data.PreliminaryEstimate
+          },
+          "colour": colours[hl - 2],
+          "display": FormattedID
+        });
       }
       else {
         var parent = tree[0];
@@ -123,7 +137,21 @@ Ext.define('CustomApp', {
         }
         if (!("children" in parent)) {parent["children"] = [];}
 
-        parent["children"].push({"data": {name: name, OID: String(current)}, "colour": colours[hl - 2], "display": FormattedID})
+        parent["children"].push({
+          "data": {
+            OID: String(current),
+            name: name,
+            plannedStartDate: data.PlannedStartDate,
+            plannedEndDate: data.PlannedEndDate,
+            state: data.State,
+            investmentCategory: data.InvestmentCategory,
+            percentDoneByStoryCount: data.percentDoneByStoryCount,
+            percentDoneByPlanEstimate: data.percentDoneByPlanEstimate,
+            preliminaryEstimate: data.preliminaryEstimate
+          },
+          "colour": colours[hl - 2],
+          "display": FormattedID
+          })
       }
     });
     this.renderChart(tree[0]["children"]);
@@ -140,11 +168,7 @@ Ext.define('CustomApp', {
     padding = 5,
     duration = 1000;
 
-    console.log('dim', width, height);
-
     var div = d3.select("#CustomD3App");
-
-
     div.selectAll("svg").remove();
 
     var vis = div.append("svg")
@@ -329,7 +353,7 @@ Ext.define('CustomApp', {
       var textG = d3.select("#CustomD3App").append('g').attr("id", "displayTexts");
 
 
-
+console.log("foo", d.data);
       var text = textG
       .append("div")
         .attr("id", "texttest")
@@ -337,7 +361,7 @@ Ext.define('CustomApp', {
         .style("left", "300px")
         .style("top", "300px")
         .style("text-align", "center")
-        .text(d.data.name);
+        .text(d.data.name + "<br/>" + d.data.state);
 
   }
 });
