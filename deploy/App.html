@@ -7359,18 +7359,19 @@ Ext.define('CustomApp', {
         .attr("cx", 300)
         .attr("cy", 300);
 
-      console.log([d]);
 
-      var text = d3.select("#vis").selectAll("text").data([d]).enter()
-      .append("text")
+
+      var textG = d3.select("#CustomD3App").append('g').attr("id", "displayTexts");
+
+
+
+      var text = textG
+      .append("div")
         .attr("id", "texttest")
-        .attr("x", function(d) { return 300; })
-        .attr("y", function(d) { return 300; })
-        .attr("font-size", "20px")
-        .attr("fill", "black")
-        .attr("text-anchor", "middle")
-        .text( function(d) {console.log("the data: ", d); return "the name will go here";})
-
+        .style("position", "absolute")
+        .style("left", "300px")
+        .style("top", "300px")
+        .text(d.name);
 
   }
 });

@@ -107,7 +107,7 @@ Ext.define('CustomApp', {
       })(data._TypeHierarchy[data._TypeHierarchy.length - 1]) + String(data._UnformattedID);
 
       if (hl === 1) {
-        tree[0]["children"].push({"name": name, "data": {OID: String(current), depth: hl}, "colour": colours[hl - 2], "display": FormattedID});
+        tree[0]["children"].push({"data": {"name": name, OID: String(current)}, "colour": colours[hl - 2], "display": FormattedID});
       }
       else {
         var parent = tree[0];
@@ -122,7 +122,7 @@ Ext.define('CustomApp', {
         }
         if (!("children" in parent)) {parent["children"] = [];}
 
-        parent["children"].push({"name": name, "data": {OID: String(current), depth: hl}, "colour": colours[hl - 2], "display": FormattedID})
+        parent["children"].push({"data": {"name": name, OID: String(current)}, "colour": colours[hl - 2], "display": FormattedID})
       }
     });
     this.renderChart(tree[0]["children"]);
@@ -319,18 +319,19 @@ Ext.define('CustomApp', {
         .attr("cx", 300)
         .attr("cy", 300);
 
-      console.log([d]);
 
-      var text = d3.select("#vis").selectAll("text").data([d]).enter()
-      .append("text")
+
+      var textG = d3.select("#CustomD3App").append('g').attr("id", "displayTexts");
+
+
+
+      var text = textG
+      .append("div")
         .attr("id", "texttest")
-        .attr("x", function(d) { return 300; })
-        .attr("y", function(d) { return 300; })
-        .attr("font-size", "20px")
-        .attr("fill", "black")
-        .attr("text-anchor", "middle")
-        .text( function(d) {console.log("the data: ", d); return "the name will go here";})
-
+        .style("position", "absolute")
+        .style("left", "300px")
+        .style("top", "300px")
+        .text(d.name);
 
   }
 });
