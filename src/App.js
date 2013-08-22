@@ -45,8 +45,8 @@ Ext.define('CustomApp', {
             },
             scope: this
         },
-        fetch: ['Name', 'ObjectID', '_TypeHierarchy', '_ItemHierarchy', 'PortfolioItemType', '_UnformattedID'],
-        hydrate: ['_TypeHierarchy'],
+        fetch: ['Name', 'ObjectID', 'PlannedStartDate', 'PlannedEndDate', 'State', 'InvestmentCategory', 'PercentDoneByStoryCount', 'PercentDoneByPlanEstimate', 'PreliminaryEstimate', '_TypeHierarchy', '_ItemHierarchy', 'PortfolioItemType', '_UnformattedID'],
+        hydrate: ['_TypeHierarchy', 'Project', 'State', 'PortfolioItemType', 'PreliminaryEstimate'],
         filters: [
             {
                 property: '__At',
