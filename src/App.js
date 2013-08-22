@@ -40,6 +40,7 @@ Ext.define('CustomApp', {
         autoLoad: true,
         listeners: {
             load: function(store, data, success) {
+              console.log('all data', data);
                 this.transformDataToTree(data);
             },
             scope: this
